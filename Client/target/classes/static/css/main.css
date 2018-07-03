@@ -1,0 +1,44 @@
+body {
+	font-size: 14px;
+	padding: 0px;
+	margin: 0px;
+}
+
+.top {
+	top:0px;
+	height: 60px;
+	line-height:60px;
+	width: 100%;
+	background-color: #ddd;
+}
+.waterfall{
+	width:100%;
+	list-style-type:none;
+	padding:0px;
+	margin:0px;
+	background-color: #eee;
+	overflow-y:scroll;
+}
+.waterfall li{
+	height:50px;
+	background-color:#ccc;
+	border-bottom:1px solid #eee;
+}
+.year{
+	width:100px;
+	height:60px;
+	border-right:1px solid #fff;
+}
+.year span{
+	float:left;
+	width:100%;
+	height:25px;
+	line-height:25px;
+}
+.span-x{
+	width:50px;
+	text-align:center;
+}
+.span-y{
+	height:50px;
+}

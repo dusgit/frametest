@@ -1,0 +1,199 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta content="text/html;charset=UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style type="text/css">
+.showa{
+	width:100%;
+	border:1px solid #aaa;
+}
+.showa td{
+	border:1px solid #ccc;
+}
+.shows{
+	height:400px;
+	width:50%;
+}
+.map{
+	background-color:#eee;
+	width:100%;
+	height:100%;
+}
+.num-y-td{
+	width:60px;
+	text-align:center;
+}
+.num-x-td{
+	height:60px;
+}
+.num-y{
+	float:left;
+	width:60px;
+}
+.num-x{
+	float:left;
+	height:60px;
+	text-align:center;
+}
+.data-bar-out{
+	position:absolute;
+	bottom:0px;
+	overflow:hidden;
+}
+.data-bar{
+	position:absolute;
+	bottom:0px;
+	background-color:#ddd;
+}
+.data-bar:hover{
+	background-color:#dda;
+}
+.numtip{
+	position:absolute;
+	top:0px;
+	height:30px;
+	width:100%;
+	text-align:center;
+}
+</style>
+</head>
+<body>
+	<div id="asdf" style="width:123px;background-color:#eee;">
+		asdfasdfasdf
+	</div>
+	<table class="showa">
+		<tr>
+			<td colspan="1">访问次数统计(刷新<span style="" id="times">0</span>次)</td>
+		</tr>
+		<tr>
+			<td class="shows">
+				<table class="map" cellspacing="0" cellpadding="0" id="map">
+					<tr style="height:50px;text-align:center;"><td colspan="2">每<span id="seconds"></span>秒访问次数 </td></tr>
+					<tr>
+						<td class="num-y-td" id="num-y">
+							
+						</td>
+						<td id="data-area" style="position:relative;">
+						
+						</td>
+					</tr>
+					<tr>
+						<td class=""></td>
+						<td class="num-x-td" id="num-x">
+							
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		synTimer();
+	});
+	
+	function synTimer(){
+		synData();
+		setTimeout(function(){
+			//synTimer();
+		},2000);
+	}
+	
+	function initZb(data){
+		//初始化x
+		var span_x_w = $('#num-x').width()/data.x.length;
+		var html_x = "";
+		$.each(data.x,function(idx,ele){
+			if(idx % 2 == 0){
+				html_x += '<span class="num-x" style="width:'+span_x_w+'px">'+ele+'</span>';
+			}else{
+				html_x += '<span class="num-x" style="width:'+span_x_w+'px"></span>';
+			}
+			
+		});
+		$('#num-x').html(html_x);
+		//初始化y
+		var html_y = "";
+		var datay = getY(data.y);
+		var max_y = datay[0];
+		var zb_y_h = $('#num-y').height();
+		var span_y_h = zb_y_h/datay.length;
+		$.each(datay,function(idx,ele){
+			html_y += '<span class="num-y" style="height:'+span_y_h+'px">'+ele+'</span>';
+		});
+		$('#num-y').html(html_y);
+		//初始化数据
+		var html_bar = '';
+		$.each(data.y,function(idx,ele){
+			html_bar += '<div class="data-bar-out" style="left:'+(idx * span_x_w)+'px;width:'+ span_x_w +'px;height:'+(getYH(max_y,zb_y_h,ele)+30)+'px;">'
+					 +  '<span class="numtip">'+ele+'</span><span class="data-bar" style="left:0px;width:100%;height:'+getYH(max_y,zb_y_h,ele)+'px"></span>'
+					 +  '</div>';
+		});
+		$('#data-area').html(html_bar);
+	}
+	
+	function getYH(max_y,zb_y_h,num){
+		return zb_y_h*num/max_y;
+	}
+	
+	function getY(data){
+		var max = 0;
+		$.each(data,function(idx,ele){
+			if(ele > max){
+				max = ele
+			}
+		});
+		if(max <=10){
+			return [10,8,6,4,2];
+		}else if(max <= 100){
+			return [100,80,60,40,20];
+		}else if(max <= 500){
+			return [500,400,300,200,100];
+		}else if(max <= 1000){
+			return [1000,800,600,400,200];
+		}else if(max <= 10000){
+			return [10000,8000,6000,4000,2000];
+		}else if(max <= 100000){
+			return [100000,80000,60000,40000,20000];
+		}else if(max <= 1000000){
+			return [1000000,800000,600000,400000,200000];
+		}
+	}
+	
+	
+	function synData(){
+		var seconds = 10;
+		$('#seconds').html(seconds);
+		$.ajax({
+			url:'/mornitor/getData',
+			type:'get',
+			data:{seconds:seconds},
+			success:function(res){
+				var data = {
+						x : changeArray(res.results.keyArray),
+						y : res.results.valueArray
+				}
+				initZb(data);
+				$('#times').html(parseInt($('#times').html()) + 1);
+			}
+		});
+	}
+	
+	function changeArray(array){
+		var narray = [];
+		$.each(array,function(idx,ele){
+			var ndate = new Date(ele * 1000);
+			narray.push(ndate.getHours() + ':' + ndate.getMinutes() + ":" + ndate.getSeconds());
+		});
+		return narray;
+	}
+
+</script>
+
+
+</html>
