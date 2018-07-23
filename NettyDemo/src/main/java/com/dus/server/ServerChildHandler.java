@@ -27,6 +27,7 @@ public class ServerChildHandler extends ChannelInboundHandlerAdapter{
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		System.out.println("server channel read ----------" + msg);
+		Thread.currentThread().sleep(5000);
 		// 发送给相关人员
 		for(String key:channelMap.keySet()){
 			Channel channel = channelMap.get(key);

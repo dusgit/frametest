@@ -9,6 +9,9 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
@@ -42,9 +45,14 @@ public class NettyClient implements Runnable{
 		  .handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new StringDecoder());
-				ch.pipeline().addLast(new StringEncoder());
-				ch.pipeline().addLast(new ClientHandler());
+				ch.pipeline().addLast(new ObjectDecoder(1024 >> 2, ClassResolvers.cacheDisabled(getClass().getClassLoader())));
+                ch.pipeline().addLast(new ObjectEncoder());
+                ch.pipeline().addLast(new ClientObjectHandler());
+                
+//				ch.pipeline().addLast(new StringDecoder());
+//				ch.pipeline().addLast(new StringEncoder());
+//				ch.pipeline().addLast(new ClientHandler());
+//				ch.pipeline().addLast(new ClientHandler2());
 			}
 		});
 		try {

@@ -7,6 +7,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
@@ -25,9 +28,16 @@ public class NettyServer {
 		   .childHandler(new ChannelInitializer<SocketChannel>() {
 			@Override
 			protected void initChannel(SocketChannel ch) throws Exception {
-				ch.pipeline().addLast(new StringDecoder());
-	            ch.pipeline().addLast(new StringEncoder());
-				ch.pipeline().addLast(new ServerChildHandler());
+				
+			  ObjectDecoder objectDecoder = new ObjectDecoder(1024 * 1024,ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader()));
+			  ch.pipeline().addLast(objectDecoder);
+              ch.pipeline().addLast(new ObjectEncoder());
+              ch.pipeline().addLast(new ServerObjectHandler());
+                
+				
+//				ch.pipeline().addLast(new StringDecoder());
+//	            ch.pipeline().addLast(new StringEncoder());
+//				ch.pipeline().addLast(new ServerChildHandler());
 			}  
 		});
 		System.out.println("server start at " + port);
